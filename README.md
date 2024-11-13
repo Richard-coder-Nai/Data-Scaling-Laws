@@ -4,7 +4,7 @@
 [[Paper]](https://data-scaling-laws.github.io/paper.pdf)
 [[Models]](https://huggingface.co/Fanqi-Lin/Task-Models/tree/main)
 [[Processed Dataset]](https://huggingface.co/datasets/Fanqi-Lin/Processed-Task-Dataset/tree/main)
-[[Raw GoPro Videos (Coming Soon)]]()
+[[Raw GoPro Videos]](https://huggingface.co/datasets/Fanqi-Lin/GoPro-Raw-Videos)
 
 <p>
     <img src="./assets/wild-data.gif" alt="wild-data" width="45%" />
@@ -28,7 +28,7 @@ Pingyue Sheng<sup>1</sup>,
 See the [UMI repository](https://github.com/real-stanford/universal_manipulation_interface) for installation. 
 
 ## 📷 Data
-We release data for all four of our tasks: *pour water, arrange mouse, fold towel*, and *unplug charger*. You can view or download all raw GoPro videos from this [link (Coming Soon)](), and generate the dataset for training by running:
+We release data for all four of our tasks: *pour water, arrange mouse, fold towel*, and *unplug charger*. You can view or download all raw GoPro videos from this [link](https://huggingface.co/datasets/Fanqi-Lin/GoPro-Raw-Videos), and generate the dataset for training by running:
 
 ```shell
 bash run_slam.sh && bash run_generate_dataset.sh

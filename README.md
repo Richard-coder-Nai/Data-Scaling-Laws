@@ -34,8 +34,4 @@ Activate your `umi` Python environment and start the client:
        -getitem_type necessary \
        --remote_port 8000
    ```
- Replace `<your instruction here>` with your task instruction. For example, for open-world visual grounding:
-
- ```bash
- --ins "Give me the object reminding me of the sea."
- ```
+ Replace `<your instruction here>` with your task instruction. For example, for open-world visual grounding: ```--ins "Give me the object reminding me of the sea."```

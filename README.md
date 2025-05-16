@@ -1,77 +1,74 @@
-# Data Scaling Laws in Imitation Learning for Robotic Manipulation
+# UMI Client for OneTwoVLA
 
-[[Project Page]](https://data-scaling-laws.github.io/)
-[[Paper]](https://data-scaling-laws.github.io/paper.pdf)
-[[Models]](https://huggingface.co/Fanqi-Lin/Task-Models/tree/main)
-[[Processed Dataset]](https://huggingface.co/datasets/Fanqi-Lin/Processed-Task-Dataset/tree/main)
-[[Raw GoPro Videos]](https://huggingface.co/datasets/Fanqi-Lin/GoPro-Raw-Videos)
+This repository provides code for running the [OneTwoVLA](https://github.com/Richard-coder-Nai/onetwovla.git) model on the Universal Manipulation Interface (UMI) platform.
+We run inference using a **policy server** and a **UMI client**.
 
-<p>
-    <img src="./assets/wild-data.gif" alt="wild-data" width="45%" />
-    <img src="./assets/wild-eval.gif" alt="wild-eval" width="45%" />
-</p>
+---
 
-[Fanqi Lin](https://fanqi-lin.github.io/)<sup>1,2,3\*</sup>,
-[Yingdong Hu](https://yingdong-hu.github.io/)<sup>1,2,3\*</sup>,
-Pingyue Sheng<sup>1</sup>,
-[Chuan Wen](https://alvinwen428.github.io/)<sup>1,2,3</sup>,
-[Jiacheng You](https://scholar.google.com/citations?user=FiP-TVUAAAAJ)<sup>1</sup>,
-[Yang Gao](https://yang-gao.weebly.com/)<sup>1,2,3</sup>,
+## Hardware Setup
 
-<sup>1</sup>Tsinghua University,
-<sup>2</sup>Shanghai Qi Zhi Institute,
-<sup>3</sup>Shanghai Artificial Intelligence Laboratory
+Please follow the [UMI hardware setup instructions](https://github.com/real-stanford/universal_manipulation_interface).
 
-<sup>\*</sup> indicates equal contributions
+**Note:**
+- We remove the mirror and change the gripper design. See [details here](TODO).
+- Gripper width and TCP offset are also updated in code ([reference commit](https://github.com/Richard-coder-Nai/Data-Scaling-Laws/commit/0661a3b1a8f2da833157933b0a886121a9676fde)).
 
-## 🛠️ Installation
-See the [UMI repository](https://github.com/real-stanford/universal_manipulation_interface) for installation. 
+---
 
-## 📷 Data
-We release data for all four of our tasks: *pour water, arrange mouse, fold towel*, and *unplug charger*. You can view or download all raw GoPro videos from this [link](https://huggingface.co/datasets/Fanqi-Lin/GoPro-Raw-Videos), and generate the dataset for training by running:
+## 1. Start the OneTwoVLA Policy Server
 
-```shell
-bash run_slam.sh && bash run_generate_dataset.sh
+> Run these steps from your **OneTwoVLA** directory.
+
+**Install dependencies:**
+
+```bash
+uv pip install pynput
+```
+> *You may need `sudo` privileges.*
+
+**Start the policy server (example for port `8000`):**
+
+```bash
+uv run scripts/serve_policy.py --port 8000 \
+    policy:checkpoint \
+    --policy.config=onetwovla_visual_grounding \
+    --policy.dir=/path/to/your/checkpoint
 ```
 
-Alternatively, we provide processed dataset [here](https://huggingface.co/datasets/Fanqi-Lin/Processed-Task-Dataset/tree/main), ready for direct use in training.
+**Available policy configurations:**
+- `onetwovla_visual_cocktail`
+- `onetwovla_visual_grounding`
+- `pi0_visual_cocktail`
+- `pi0_visual_grounding`
 
-You can visualize the dataset with a simple script:
-```shell
-python visualize_dataset.py
-```
+Update the `--policy.config` and `--policy.dir` to match your use case and checkpoint location.
 
-## 🦾 Real-World Evaluation
-For the hardware setup, please refer to the [UMI repo](https://github.com/real-stanford/universal_manipulation_interface) (note: we remove the mirror from the gripper, see [link](https://drive.google.com/drive/folders/1DLGfRWYvODOnHwn9Ye-xWlYhXk0WwBGG?usp=sharing)).
+---
 
-For each task, we release a policy trained on data collected from 32 unique environment-object pairs, with 50 demonstrations per environment. These polices generalize well to any new environment and new object. You can download them from [link](https://huggingface.co/Fanqi-Lin/Task-Models/tree/main) and run real-world evaluation using:
+## 2. Run the UMI Client
 
-```shell
-bash eval.sh
-```
+> Run these steps from your **Data-Scaling-Laws** directory.
 
-The ```temporal_agg``` parameter in eval.sh refers to temporal ensemble strategy mentioned in our paper, enabling smoother robot actions.
+The client script is [`umi_client.py`](umi_client.py).
 
-Additionally, you can use the ```-j``` parameter to reset the robot arm to a fixed initial position (make sure that the initial joint configuration specified in ```example/eval_robots_config.yaml``` is safe for your robot !!!).
+**To launch the client:**
 
-## 📊 Reproducing Data Scaling Laws
-After downloading the [processed dataset](https://huggingface.co/datasets/Fanqi-Lin/Processed-Task-Dataset/tree/main), you can train a policy by running:
+Activate your `umi` Python environment and start the client:
 
-```shell
-cd train_scripts && bash <task_name>.sh
-```
+   ```bash
+   python umi_client.py \
+       --robot_config=example/eval_robots_config.yaml \
+       -o /path/to/output/dir/ \
+       --frequency 5 -j \
+       --temporal_agg -si 1 \
+       --ins "<your instruction here>" \
+       --state_horizon 3,15 \
+       -action_down_sample_steps 3 \
+       -getitem_type necessary \
+       --remote_port 8000
+   ```
+   - Replace `<your instruction here>` with your task instruction. For example, for open-world visual grounding:
 
-For multi-GPU training, configure your setup with ```accelerate config```, then replace ```python``` with ```accelerate launch``` in the ```<task_name>.sh``` script. Additionally, you can speed up training without sacrificing policy performance by adding the ```--mixed_precision 'bf16'``` argument.
-
-Note that for the pour_water and unplug_charger tasks, we incorporate an additional step of historical observation for policy training and inference.
-
-The current parameters in the ```<task_name.sh>``` scripts correspond to our released [models](https://huggingface.co/Fanqi-Lin/Task-Models/tree/main), but you can customize training:
-+ Use ```policy.obs_encoder.model_name``` to specify the type of vision encoder for the diffusion policy. Other options include ```vit_base_patch14_dinov2.lvd142m``` (DINOv2 ViT-Base) and ```vit_large_patch14_clip_224.openai``` (CLIP ViT-Large).
-+ To adjust the number of training environment-object pairs (up to a maximum of 32), modify ```task.dataset.dataset_idx```. You can change the proportion of demonstrations used by adjusting ```task.dataset.use_ratio``` within the range (0, 1]. Training policies on data from different environment-object pairs, using 100% of the demonstrations, generates scaling curves similar to the following:
-
-<img width="90%" src="assets/scaling-law-curve.png">
-
-The curve (third column) shows that the policy’s ability to generalize to new environments and objects scales approximately as a power law with the number of training environment-object pairs.
-
-## 🙏 Acknowledgement
-We thank the authors of [UMI](https://github.com/real-stanford/universal_manipulation_interface) for sharing their codebase.
+     ```bash
+     --ins "Give me the object reminding me of the sea."
+     ```

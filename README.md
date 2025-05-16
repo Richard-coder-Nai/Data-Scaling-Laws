@@ -1,7 +1,6 @@
 # UMI Client for OneTwoVLA
 
-This repository provides code for running the [OneTwoVLA](https://github.com/Richard-coder-Nai/onetwovla.git) model on the Universal Manipulation Interface (UMI) platform.
-We run inference using a **policy server** and a **UMI client**.
+This repository provides the hardware client code for running the [OneTwoVLA](https://one-two-vla.github.io/) model on the Universal Manipulation Interface (UMI) platform. The training code for OneTwoVLA can be found at (link)[insert link here], and the policy server code is available at (link)[insert link here].
 
 ---
 
@@ -15,39 +14,7 @@ Please follow the [UMI hardware setup instructions](https://github.com/real-stan
 
 ---
 
-## 1. Start the OneTwoVLA Policy Server
-
-> Run these steps from your **OneTwoVLA** directory.
-
-**Install dependencies:**
-
-```bash
-uv pip install pynput
-```
-> *You may need `sudo` privileges.*
-
-**Start the policy server (example for port `8000`):**
-
-```bash
-uv run scripts/serve_policy.py --port 8000 \
-    policy:checkpoint \
-    --policy.config=onetwovla_visual_grounding \
-    --policy.dir=/path/to/your/checkpoint
-```
-
-**Available policy configurations:**
-- `onetwovla_visual_cocktail`
-- `onetwovla_visual_grounding`
-- `pi0_visual_cocktail`
-- `pi0_visual_grounding`
-
-Update the `--policy.config` and `--policy.dir` to match your use case and checkpoint location.
-
----
-
-## 2. Run the UMI Client
-
-> Run these steps from your **Data-Scaling-Laws** directory.
+## Run the UMI Client
 
 The client script is [`umi_client.py`](umi_client.py).
 
@@ -67,8 +34,8 @@ Activate your `umi` Python environment and start the client:
        -getitem_type necessary \
        --remote_port 8000
    ```
-   - Replace `<your instruction here>` with your task instruction. For example, for open-world visual grounding:
+ Replace `<your instruction here>` with your task instruction. For example, for open-world visual grounding:
 
-     ```bash
-     --ins "Give me the object reminding me of the sea."
-     ```
+ ```bash
+ --ins "Give me the object reminding me of the sea."
+ ```

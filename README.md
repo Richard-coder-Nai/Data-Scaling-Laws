@@ -11,7 +11,7 @@ Please follow the [UMI hardware setup instructions](https://github.com/real-stan
 
 **Note:**
 - We remove the mirror and change the gripper design. See [details here](https://drive.google.com/drive/folders/19Mh4s9g5-ohd3_6ZhqTk2WIT-KeQDnH7?usp=drive_link).
-- Gripper width and TCP offset are also updated in code ([reference commit](https://github.com/Richard-coder-Nai/Data-Scaling-Laws/commit/0661a3b1a8f2da833157933b0a886121a9676fde)).
+- TCP offset is updated in code ([reference commit](https://github.com/Richard-coder-Nai/Data-Scaling-Laws/commit/0661a3b1a8f2da833157933b0a886121a9676fde)).
 
 ---
 
